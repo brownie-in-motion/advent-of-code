@@ -1,16 +1,16 @@
 import Advent
 import Data.List ( sort )
 
-type Problem = [Int]
+type Problem = [[Int]]
 
-parse :: String -> [Int]
-parse s = map (sum . map read) (split "" $ lines s)
+parse :: String -> [[Int]]
+parse = map (map read) . split "" . lines
 
 one :: Problem -> Int
-one = foldr max 0
+one = maximum . map sum
 
 two :: Int -> Problem -> Int
-two n = sum . take n . reverse . sort
+two n = sum . take n . reverse . sort . map sum
 
 solutions :: [Problem -> String]
 solutions = [show . one, show . two 3]
