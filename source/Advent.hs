@@ -1,9 +1,13 @@
 module Advent where
 
 import Control.Monad ( void )
+import Data.Bifunctor ( Bifunctor, bimap )
 
-both :: (a -> b) -> (a, a) -> (b, b)
-both f (a, b) = (f a, f b)
+-- both :: (a -> b) -> (a, a) -> (b, b)
+-- both f (a, b) = (f a, f b)
+
+both :: Bifunctor p => (a -> b) -> p a a -> p b b
+both f = bimap f f
 
 chunks :: Int -> [a] -> [[a]]
 chunks a x = case splitAt a x of
@@ -16,6 +20,9 @@ fan f x = fmap ($ x) f
 
 halve :: [a] -> ([a], [a])
 halve a = splitAt (div (length a) 2) a
+
+offset :: Char -> Char -> Int
+offset a b = fromEnum b - fromEnum a
 
 split :: Eq a => a -> [a] -> [[a]]
 split s a = case break (==s) a of

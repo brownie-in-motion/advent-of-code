@@ -1,6 +1,5 @@
 import Advent
-import Data.Bifunctor ( bimap )
-import Data.List ( foldl1', sort, intersect, minimum )
+import Data.List ( foldl1', sort, intersect )
 
 type Problem = [String]
 
@@ -34,10 +33,9 @@ score a
     | 'a' <= a && a <= 'z' = offset 'a' a + 1
     | 'A' <= a && a <= 'Z' = offset 'A' a + 27
     | otherwise = error "bad input"
-    where offset a b = fromEnum b - fromEnum a
 
 one :: Problem -> Int
-one = sum . map (score . uncurry commonTwo . bimap sort sort . halve)
+one = sum . map (score . uncurry commonTwo . both sort . halve)
 
 two :: Problem -> Int
 two = sum . map (score . common) . chunks 3 . map sort

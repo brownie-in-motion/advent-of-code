@@ -6,9 +6,7 @@ type Problem = [(Int, Int)]
 
 parse :: String -> Problem
 parse s = map (decode . second tail . break (== ' ')) $ lines s
-    where
-        offset a b = fromEnum (head b) - fromEnum a
-        decode = bimap (offset 'A') (offset 'X')
+    where decode = bimap (offset 'A') (offset 'X') . both head
 
 -- (opponent, move) -> score
 score :: (Int, Int) -> Int
