@@ -2,6 +2,7 @@ module Advent where
 
 import Control.Monad ( void )
 import Data.Bifunctor ( Bifunctor, bimap )
+import Data.Functor ( ($>) )
 
 -- both :: (a -> b) -> (a, a) -> (b, b)
 -- both f (a, b) = (f a, f b)
@@ -23,6 +24,9 @@ halve a = splitAt (div (length a) 2) a
 
 offset :: Char -> Char -> Int
 offset a b = fromEnum b - fromEnum a
+
+pass :: Functor f => (a -> f b) -> a -> f a
+pass f a = f a $> a
 
 split :: Eq a => a -> [a] -> [[a]]
 split s a = case break (==s) a of
