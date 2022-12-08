@@ -3,7 +3,7 @@ import Data.List ( sort )
 
 type Problem = [[Int]]
 
-parse :: String -> [[Int]]
+parse :: String -> Problem
 parse = map (map read) . split "" . lines
 
 one :: Problem -> Int
