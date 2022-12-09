@@ -1,5 +1,4 @@
 import Advent
-
 import Control.Monad.State.Strict (evalState, get, gets, modify, put, State)
 import Data.Bifunctor ( bimap )
 import Data.IntMap.Strict ( IntMap )

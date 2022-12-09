@@ -1,11 +1,9 @@
 {-# LANGUAGE RankNTypes #-}
 
 import Advent
-
-import Control.Monad ( foldM, forM_, replicateM_ )
+import Control.Monad ( forM_, replicateM_ )
 import Control.Monad.ST ( runST, ST )
 import Data.Array.ST ( getElems, newListArray, readArray, writeArray, STArray )
-import Data.Functor ( ($>) )
 import Data.List ( transpose )
 
 -- parsing
