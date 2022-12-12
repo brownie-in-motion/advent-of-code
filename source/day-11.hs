@@ -71,10 +71,12 @@ parse = unzip . map (parseM . map (dropWhile (== ' '))) . split "" . lines
 
 -- given a behavior and a monkey, give the number inspected
 process :: (Int -> Int) -> Items s -> Behavior -> Reference -> ST s Int
-process f arr (o, t, n) r = do
-    levels <- ((f . o) <$>) <$> emptyA arr r
-    mapM_ ((flip when n . (== 0) . (`mod` t)) >>= offerA arr) levels
-    return $ S.length levels
+process f arr (o, t, n) r = S.length <$> (worries >>= pass move)
+    where
+        -- ST s Int of new worry levels
+        worries = ((f . o) <$>) <$> emptyA arr r
+        -- ST s () after giving the items to the new monkeys
+        move = mapM_ ((flip when n . (== 0) . (`mod` t)) >>= offerA arr)
 
 -- take a strategy for worry reduction
 -- perform a round, returning the number inspected by each monkey
