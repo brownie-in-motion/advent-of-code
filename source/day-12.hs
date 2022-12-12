@@ -72,7 +72,7 @@ boardEdges board = foldl' (flip ($)) M.empty $ map ($ board) maps
 -- number of steps to the end
 -- take visited locations and starting points
 --
--- now replaced with `flood` and `steps` favoring fold over recursion
+-- now replaced with `flood` and `steps` because recursion bad
 -- as a consequence, `steps` no longer needs an initial visited set
 --
 -- steps :: Location -> Adjacency -> Visited -> [Location] -> Int
