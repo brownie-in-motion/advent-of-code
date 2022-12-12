@@ -30,7 +30,7 @@ parse s = (parseBoxes $ init front, parseInstructions back)
 
 type BoxArray s = STArray s Int Stack
 
-putBoxArray :: Boxes -> ST s (STArray s Int Stack)
+putBoxArray :: Boxes -> ST s (BoxArray s)
 putBoxArray = ((,) 1 . length) >>= newListArray
 
 getsS :: (Stack -> a) -> BoxArray s -> Int -> ST s a

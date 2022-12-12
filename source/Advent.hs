@@ -35,3 +35,7 @@ split s a = case break (==s) a of
 
 run :: (String -> a) -> [a -> String] -> String -> IO ()
 run p s f = readFile f >>= void . sequence . fan (map (putStrLn .) s) . p
+
+when :: Bool -> (a, a) -> a
+when True = fst
+when False = snd
