@@ -42,8 +42,7 @@ decode _ = error "unknown operator"
 
 parseI :: String -> [Int]
 parseI line = map (read . takeWhile isDigit) nums
-    where
-        ("Starting":"items:":nums) = split ' ' line
+    where ("Starting":"items:":nums) = split ' ' line
 
 parseB :: [String] -> Behavior
 parseB lines = (operation a, test b, (true c, false d))
