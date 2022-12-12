@@ -21,8 +21,6 @@ type Visited = Set Location
 type Row = [Char]
 type Board = [Row]
 
-type Problem = Board
-
 height :: Char -> Int
 height 'S' = height 'a'
 height 'E' = height 'z'
@@ -108,10 +106,10 @@ distanceFrom s b = steps target adjacency start
         adjacency = boardEdges b
         start = s >>= flip locate b
 
-one :: Problem -> Int
+one :: Board -> Int
 one = distanceFrom ['S']
 
-two :: Problem -> Int
+two :: Board -> Int
 two = distanceFrom ['a', 'S']
 
 main = run lines [show . one, show . two] "../inputs/day-12"
