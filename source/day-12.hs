@@ -3,7 +3,7 @@ import Control.Applicative ( (<**>) )
 import Control.Arrow ( first )
 import Control.Monad ( join )
 import Data.Bifunctor ( bimap )
-import Data.List ( find, foldl', nub, transpose )
+import Data.List ( findIndex, foldl', nub, transpose )
 import Data.Maybe ( fromJust, fromMaybe )
 import Data.Map.Strict ( (!?), Map )
 import Data.Sequence ( Seq )
@@ -91,15 +91,15 @@ flood a (v, s) = (foldl' (flip S.insert) v next, unvisited)
         next = s >>= uncurry map . bimap (flip move) (getD a) . join (,)
 
 steps :: Location -> Adjacency -> [Location] -> Int
-steps t a s = fst $ fromJust $ find (S.member t . fst . snd) numbered
-    where numbered = zip [0..] (iterate (flood a) (S.empty, s))
+steps t a s = fromJust $ findIndex found $ iterate (flood a) (S.empty, s)
+    where found = S.member t . fst
 
 -- get locations of a given character
 locate :: Char -> Board -> [Location]
 locate c b = map fst $ filter ((== c) . snd) (zip locations b >>= uncurry zip)
 
 -- from a list of starting characters, get the distance to the end
-distanceFrom :: [Char] -> Problem -> Int
+distanceFrom :: [Char] -> Board -> Int
 distanceFrom s b = steps target adjacency start
     where
         target = head $ locate 'E' b
