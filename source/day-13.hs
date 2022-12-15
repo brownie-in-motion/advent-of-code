@@ -3,9 +3,8 @@ import Data.Bifunctor ( second )
 import Data.Char ( isDigit )
 import Data.List ( findIndices, sort )
 import Data.Monoid ( (<>) )
-import Data.Ord ( compare, Ordering )
+import Data.Ord ( compare )
 import Data.Tuple ( swap )
-import Debug.Trace ( traceShowId )
 
 data Packet = V Int | L [Packet] deriving Show
 
