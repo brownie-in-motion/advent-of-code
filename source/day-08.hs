@@ -6,12 +6,6 @@ import Data.List ( tails, transpose )
 parse :: String -> [[Int]]
 parse = map (map $ read . (:[])) . lines
 
-takeUntil :: (a -> Bool) -> [a] -> [a]
-takeUntil f [] = []
-takeUntil f (a:as)
-    | f a = [a]
-    | otherwise = a : takeUntil f as
-
 bothWays :: ([a] -> [b]) -> (b -> b -> c) -> [a] -> [c]
 bothWays f m xs = zipWith m (f xs) (reverse $ f $ reverse xs)
 
