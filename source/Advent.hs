@@ -16,6 +16,16 @@ chunks a x = case splitAt a x of
     (chunk, []) -> [chunk]
     (chunk, rest) -> chunk : chunks a rest
 
+extract :: [Int] -> [a] -> [a]
+extract = helper 0
+    where
+        helper _ [] _ = []
+        helper n indices@(i:is) (x:xs)
+            | i == n = x : helper (n + 1) is xs
+            | otherwise = helper (n + 1) indices xs
+        helper _ _ _ = error "illegal input"
+
+
 fan :: Functor f => f (a -> b) -> a -> f b
 fan f x = fmap ($ x) f
 
@@ -42,6 +52,6 @@ takeUntil f (a:as)
     | f a = [a]
     | otherwise = a : takeUntil f as
 
-when :: Bool -> (a, a) -> a
-when True = fst
-when False = snd
+which :: Bool -> (a, a) -> a
+which True = fst
+which False = snd

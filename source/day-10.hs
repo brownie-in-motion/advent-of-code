@@ -18,18 +18,6 @@ deltas NOOP = [0]
 values :: Program -> [Int]
 values = init . scanl' (+) 1 . (>>= deltas)
 
--- extract :: [Int] -> [a] -> [a]
--- extract = helper 1
---     where
---         helper _ [] _ = []
---         helper n indices@(i:is) (x:xs)
---             | i == n = x : helper (n + 1) is xs
---             | otherwise = helper (n + 1) indices xs
---         helper _ _ _ = error "illegal input"
--- 
--- one :: Program -> Int
--- one = let i = [20, 60..220] in sum . zipWith (*) i . extract i . values
-
 addProduct :: Int -> (Int, Int) -> Int
 addProduct = (. uncurry (*)) . (+)
 

@@ -75,7 +75,7 @@ process f arr (o, t, n) r = S.length <$> (worries >>= pass move)
         -- ST s Queue of new worry levels
         worries = ((f . o) <$>) <$> emptyA arr r
         -- ST s () after giving the items to the new monkeys
-        move = mapM_ ((flip when n . (== 0) . (`mod` t)) >>= offerA arr)
+        move = mapM_ ((flip which n . (== 0) . (`mod` t)) >>= offerA arr)
 
 -- take a strategy for worry reduction
 -- perform a round, returning the number inspected by each monkey
