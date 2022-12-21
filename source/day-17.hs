@@ -8,8 +8,6 @@ import Data.Set ( Set )
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Debug.Trace ( traceShowId )
-
 data Direction = L | R | D
 type Problem = [Direction]
 
