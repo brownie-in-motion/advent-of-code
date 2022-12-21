@@ -33,7 +33,6 @@ parseLine _ = error "bad input"
 parse :: String -> Problem
 parse = fromList . map (parseLine . split ' ') . lines
 
-type Context = (String, Problem)
 data Tree = Root Operation (Tree, Tree) | Leaf Value | Unit deriving Show
 
 buildTree :: String -> Problem -> Tree
@@ -47,11 +46,14 @@ evaluate (Root o (l, r)) = func o (evaluate l) (evaluate r)
 evaluate (Leaf v) = v
 evaluate _ = error "cannot evaluate subtree"
 
+-- caching this would be easy but the input isn't that big
+-- it would also make Tree less clean, which is a bit frustruating
 constant :: Tree -> Bool
 constant Unit = False
 constant (Leaf v) = True
-constant (Root _ (left, right)) = constant left && constant right
+constant (Root _ (l, r)) = constant l && constant r
 
+-- invert the left side onto the right
 solve :: Tree -> Tree -> Tree
 solve Unit tree = tree
 solve (Root o (left, right)) tree = case (constant left, constant right) of
@@ -72,14 +74,16 @@ solve (Leaf _) _ = error "how did we get here"
 one :: Problem -> Int
 one = evaluate . buildTree "root"
 
+-- treat the root as an `=` vertex
+-- solve for the single variable
+result :: Tree -> Tree
+result (Root _ (l, r)) = case (constant l, constant r) of
+    (False, True) -> solve l r
+    (True, False) -> solve r l
+    _ -> error "incorrect number of variables"
+result _ = error "no equation"
+
 two :: Problem -> Int
-two p = evaluate $ result $ buildTree "root" replaced
-    where
-        replaced = Map.insert "humn" Variable p
-        result (Root _ (l, r)) = case (constant l, constant r) of
-            (False, True) -> solve l r
-            (True, False) -> solve r l
-            _ -> error "incorrect number of variables"
-        result _ = error "no equation"
+two = evaluate . result . buildTree "root" . Map.insert "humn" Variable
 
 main = run parse [show . one, show . two] "../inputs/day-21"
