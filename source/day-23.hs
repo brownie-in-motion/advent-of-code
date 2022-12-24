@@ -13,8 +13,6 @@ import Data.Tuple ( swap )
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-import Debug.Trace ( traceShowId )
-
 type Vector = (Int, Int)
 
 operate :: (a -> b -> c) -> (a, a) -> (b, b) -> (c, c)
