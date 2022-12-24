@@ -136,10 +136,6 @@ real w f = operate (+) (entries (* w) f)
 face :: Int -> Vector -> (Face, Vector)
 face w v = (entries (`div` w) v, entries (`mod` w) v)
 
--- given a 2d list [[e]], return [((x, y), e)]
-enumTwo :: [[a]] -> [((Int, Int), a)]
-enumTwo = concat . zipWith (map . first . (,)) [0..] . map (zip [0..])
-
 -- add an obstacle to the board; if the face doesn't exist, add it
 addObstacle :: Face -> Vector -> Board -> Board
 addObstacle f v b = M.insert f (S.insert v $ M.findWithDefault S.empty f b) b

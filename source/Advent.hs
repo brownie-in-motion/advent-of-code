@@ -1,7 +1,7 @@
 module Advent where
 
 import Control.Monad ( void )
-import Data.Bifunctor ( Bifunctor, bimap )
+import Data.Bifunctor ( Bifunctor, bimap, first )
 import Data.Functor ( ($>) )
 
 -- both :: (a -> b) -> (a, a) -> (b, b)
@@ -15,6 +15,10 @@ chunks a x = case splitAt a x of
     ([], []) -> []
     (chunk, []) -> [chunk]
     (chunk, rest) -> chunk : chunks a rest
+
+enumTwo :: [[a]] -> [((Int, Int), a)]
+enumTwo = concat . zipWith (map . first . (,)) [0..] . map (zip [0..])
+
 
 extract :: [Int] -> [a] -> [a]
 extract = helper 0
