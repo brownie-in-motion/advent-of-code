@@ -30,7 +30,7 @@ convert = reverse . f
 
 -- map of k to 2 * (5 ^ 0 + 5 * 1 + ... + 5 ^ k)
 powers :: [Int]
-powers = map (2 *) $ iterate ((+ 1) . (* 5)) 1
+powers = iterate ((+ 2) . (* 5)) 2
 
 -- a) find the smallest member of `powers` that is greater than n
 -- b) add it to n and convert to base five
