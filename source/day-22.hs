@@ -117,6 +117,7 @@ edges :: Net -> Faces
 edges n = foldl' (.) id (map (edgesF $ S.fromList n) n) initial
     where initial = M.fromList . zip n $ repeat (M.empty, M.empty)
 
+
 -- we store the obstacles for each face
 -- coordinates are relative to the face's top left
 -- this makes part two easier
