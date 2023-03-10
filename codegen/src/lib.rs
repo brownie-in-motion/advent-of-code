@@ -3,15 +3,23 @@ use std::fs;
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::quote;
-use syn::{Error, Ident, ItemFn, LitInt, LitStr, Result};
 use syn::parse::Parse;
+use syn::{Error, Ident, ItemFn, LitInt, LitStr, Result};
 
-struct CommaSeparated<U, V> where U: Parse, V: Parse {
+struct CommaSeparated<U, V>
+where
+    U: Parse,
+    V: Parse,
+{
     left: U,
     right: V,
 }
 
-impl<U, V> Parse for CommaSeparated<U, V> where U: Parse, V: Parse {
+impl<U, V> Parse for CommaSeparated<U, V>
+where
+    U: Parse,
+    V: Parse,
+{
     fn parse(input: syn::parse::ParseStream) -> Result<Self> {
         let left = input.parse()?;
         input.parse::<syn::Token![,]>()?;
@@ -20,10 +28,7 @@ impl<U, V> Parse for CommaSeparated<U, V> where U: Parse, V: Parse {
     }
 }
 
-fn generate_day(
-    attr: TokenStream,
-    item: TokenStream,
-) -> Result<TokenStream2> {
+fn generate_day(attr: TokenStream, item: TokenStream) -> Result<TokenStream2> {
     let day = syn::parse::<LitInt>(attr)?.base10_parse::<u8>()?;
 
     let mut parser = syn::parse::<ItemFn>(item)?;
@@ -33,7 +38,7 @@ fn generate_day(
         #parser
 
         #[derive(Debug)]
-        pub struct Day {}
+        pub struct Day;
 
         impl aoc::Solution for Day {
             fn solve_one(&self, input: &str) -> String {
@@ -56,13 +61,19 @@ fn generate_solve(
     let attr = syn::parse::<LitInt>(attr)?;
     let num = attr.base10_parse::<u8>()?;
 
-    let name = Ident::new(match num {
-        1 => "__solve_one",
-        2 => "__solve_two",
-        _ => return Err(
-            Error::new_spanned(attr, "solve attribute must be 1 or 2")
-        ),
-    }, Span::call_site());
+    let name = Ident::new(
+        match num {
+            1 => "__solve_one",
+            2 => "__solve_two",
+            _ => {
+                return Err(Error::new_spanned(
+                    attr,
+                    "solve attribute must be 1 or 2",
+                ))
+            }
+        },
+        Span::call_site(),
+    );
 
     let handler = syn::parse::<ItemFn>(item)?;
     let handler_name = handler.sig.ident.clone();
@@ -85,36 +96,38 @@ fn generate_solutions(attr: TokenStream) -> Result<TokenStream2> {
 
     let read_dir = match fs::read_dir(&directory) {
         Ok(dir) => dir,
-        Err(_) => return Err(
-            Error::new_spanned(
+        Err(_) => {
+            return Err(Error::new_spanned(
                 parsed.left,
-                "solutions attribute must be a valid directory"
-            )
-        ),
+                "solutions attribute must be a valid directory",
+            ))
+        }
     };
 
     let days = read_dir
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
         .filter(|path| path.extension() == Some("rs".as_ref()))
-        .filter_map(|path| path.file_stem()
-            .map(|name| name.to_str().zip(path.to_str())).flatten()
-            .map(|(name, path)| (name.to_string(), path.to_string()))
-        )
+        .filter_map(|path| {
+            path.file_stem()
+                .and_then(|name| name.to_str().zip(path.to_str()))
+                .map(|(name, path)| (name.to_string(), path.to_string()))
+        })
         .filter(|(name, _)| name.starts_with("day_"));
 
     let (imports, inserts): (Vec<TokenStream2>, Vec<TokenStream2>) = days
-        .map(|(name, path)| (
-            Ident::new(&name, Span::call_site()),
-            "../".to_string() + &path
-        ))
-        .map(|(name, directory)| (
-            quote! { #[path = #directory] mod #name; },
-            quote! {
-                let solution = #name::Day {};
-                map.insert(solution.day(), Box::new(solution));
-            }
-        ))
+        .map(|(name, path)| {
+            (Ident::new(&name, Span::call_site()), format!("../{path}"))
+        })
+        .map(|(name, directory)| {
+            (
+                quote! { #[path = #directory] mod #name; },
+                quote! {
+                    let solution = #name::Day;
+                    map.insert(solution.day(), Box::new(solution));
+                },
+            )
+        })
         .unzip();
 
     Ok(quote! {
@@ -127,10 +140,11 @@ fn generate_solutions(attr: TokenStream) -> Result<TokenStream2> {
             Box<dyn aoc::Solution>
         > {
             let mut map = std::collections::HashMap::<
-                u8,
-                Box<dyn aoc::Solution>
+                u8, Box<dyn aoc::Solution>
             >::new();
+
             #(#inserts)*
+
             map
         }
     })

@@ -56,6 +56,10 @@ fn run_solution(input: &str, day: u8, part: Option<Part>) {
         None => return eprintln!("no solution for day {}", day),
     };
 
-    if part != Some(Part::Two) { println!("{}", solver.solve_one(input)) };
-    if part != Some(Part::One) { println!("{}", solver.solve_two(input)) };
+    if part != Some(Part::Two) {
+        println!("{}", solver.solve_one(input))
+    };
+    if part != Some(Part::One) {
+        println!("{}", solver.solve_two(input))
+    };
 }
