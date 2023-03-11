@@ -1,4 +1,4 @@
-type Problem = Vec<Vec<u64>>;
+type Problem = Vec<Vec<bool>>;
 
 #[aoc::day(3)]
 fn parse_input(input: &str) -> Problem {
@@ -7,8 +7,8 @@ fn parse_input(input: &str) -> Problem {
         .map(|s| {
             s.chars()
                 .map(|c| match c {
-                    '0' => 0,
-                    '1' => 1,
+                    '0' => false,
+                    '1' => true,
                     _ => panic!("invalid input!"),
                 })
                 .collect()
@@ -16,24 +16,25 @@ fn parse_input(input: &str) -> Problem {
         .collect()
 }
 
-fn compare(input: &Problem) -> Vec<u64> {
+fn compare(input: &Problem) -> Vec<bool> {
     let total = input.len();
     let width = input[0].len();
     let result = input.iter().fold(vec![0; width], |acc, line| {
         acc.iter()
             .zip(line)
-            .map(|(n, c)| n + (*c == 1) as usize)
+            .map(|(n, c)| n + *c as usize)
             .collect::<Vec<usize>>()
     });
-    result.iter().map(|n| (n * 2 >= total) as u64).collect()
+    result.iter().map(|n| (n * 2 >= total)).collect()
 }
 
-fn compare_col(input: &Problem, i: usize) -> u64 {
-    (input.iter().filter(|row| row[i] == 1).count() * 2 >= input.len()) as u64
+fn compare_column(input: &Problem, i: usize) -> bool {
+    let ones = input.iter().filter(|row| row[i]).count();
+    ones * 2 >= input.len()
 }
 
-fn decode(binary: &Vec<u64>) -> u64 {
-    binary.iter().fold(0, |acc, n| (acc << 1) + n)
+fn decode(binary: &Vec<bool>) -> u64 {
+    binary.iter().fold(0, |acc, n| (acc << 1) + *n as u64)
 }
 
 #[aoc::solve(1)]
@@ -43,13 +44,13 @@ fn solve_one(input: Problem) -> u64 {
     value * (value ^ (1 << best.len()) - 1)
 }
 
-fn prune(i: usize, target: u64, values: Vec<Vec<u64>>) -> Vec<Vec<u64>> {
+fn prune(i: usize, target: bool, values: Vec<Vec<bool>>) -> Vec<Vec<bool>> {
     match values.len() {
         1 => values,
         _ => values
             .iter()
             .filter(|num| num[i] == target)
-            .map(|x| x.clone())
+            .map(Clone::clone)
             .collect(),
     }
 }
@@ -60,8 +61,8 @@ fn solve_two(input: Problem) -> u64 {
     let full = (input.clone(), input);
     let (most, least) = (0..width).fold(full, |(most, least), i| {
         (
-            prune(i, compare_col(&most, i), most),
-            prune(i, 1 - compare_col(&least, i), least),
+            prune(i, compare_column(&most, i), most),
+            prune(i, !compare_column(&least, i), least),
         )
     });
     decode(&most[0]) * decode(&least[0])
