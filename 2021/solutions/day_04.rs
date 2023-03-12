@@ -117,7 +117,7 @@ fn solve_two(problem: Problem) -> u64 {
                 (0..states.len()).collect(),
                 |acc: &mut Vec<usize>, n: &u64| {
                     *acc = acc
-                        .iter_mut()
+                        .iter()
                         .filter(|i| !(states[**i].add(*n)))
                         .map(|i| i.clone())
                         .collect::<Vec<usize>>();
