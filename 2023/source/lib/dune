@@ -1,0 +1,3 @@
+(library
+ (name advent)
+ (public_name advent))
