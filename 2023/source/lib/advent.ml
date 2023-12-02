@@ -4,13 +4,11 @@ module P : sig
     val (>>) : ('a -> 'b) -> ('b -> 'c) -> ('a -> 'c)
     val (%) : ('b -> 'c) -> ('a -> 'b) -> ('a -> 'c)
     val (let*) : 'a option -> ('a -> 'b option) -> 'b option
-    val test : int
 end = struct
     let (|>) x f = f x
     let (>>) f g x = g (f x)
     let (%) f g x = f (g x)
     let (let*) x f = Option.bind x f
-    let test = 1
 end
 
 open P
