@@ -75,7 +75,7 @@ let part_2 ({ id = _; games } : game_data) : int =
 
 let run_part (f : game_data -> int) (l : string list) : int option =
     let* games = O.sequence (List.map parse_row l) in
-    Some (List.fold_left (+) 0 (List.map (f % snd) games))
+    Some (L.sum (List.map (f % snd) games))
 
 let display (s : string) (x : int option) : unit = match x with
     | Some x -> Printf.printf "%s: %d\n" s x

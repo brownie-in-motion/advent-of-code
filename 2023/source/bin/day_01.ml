@@ -30,7 +30,7 @@ let calibration_2 (x : string) : (int * int) option =
 
 let part (c : string -> (int * int) option) (x : string list) : int =
     let combine = fun (x, y) -> 10 * x + y in
-    List.fold_left (+) 0 (List.map combine (List.filter_map c x))
+    L.sum (List.map combine (List.filter_map c x))
 
 let part_1 = part calibration_1
 let part_2 = part calibration_2

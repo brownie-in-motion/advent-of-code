@@ -24,6 +24,7 @@ end
 module L : sig
     val hd : 'a list -> 'a option
     val span : ('a -> bool) -> 'a list -> 'a list * 'a list
+    val sum : (int list) -> int
 end = struct
     let hd x = match x with
         | [] -> None
@@ -33,6 +34,7 @@ end = struct
         | c :: cs -> if f c
             then let (l, r) = span f cs in (c :: l, r)
             else ([], c :: cs)
+    let sum = List.fold_left (+) 0
 end
 
 (* option helpers *)
@@ -47,7 +49,7 @@ end = struct
         | x -> x
     let rec sequence l = match l with
         | [] -> Some []
-        | Some x :: xs -> let* next = sequence xs in Some (x :: next)
+        | Some x :: xs -> Option.map (List.cons x) (sequence xs)
         | None :: _ -> None
 end
 
