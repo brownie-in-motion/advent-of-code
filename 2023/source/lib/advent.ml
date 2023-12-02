@@ -25,6 +25,7 @@ module L : sig
     val hd : 'a list -> 'a option
     val span : ('a -> bool) -> 'a list -> 'a list * 'a list
     val sum : (int list) -> int
+    val flatmap : 'a list -> ('a -> 'b list) -> 'b list
 end = struct
     let hd x = match x with
         | [] -> None
@@ -35,6 +36,7 @@ end = struct
             then let (l, r) = span f cs in (c :: l, r)
             else ([], c :: cs)
     let sum = List.fold_left (+) 0
+    let flatmap l f = List.concat (List.map f l)
 end
 
 (* option helpers *)
@@ -83,6 +85,7 @@ end
 (* aoc helpers *)
 module A : sig
     val lines : string -> string list
+    val is_digit : char -> bool
     val read_char : char -> int option
     val read_string : string -> int option
     val input : int -> string list
@@ -97,7 +100,9 @@ end = struct
                 | e -> close_in_noerr channel; raise e
     in lines_inner (open_in file)
 
-    let read_char c = if '0' <= c && c <= '9'
+    let is_digit c = '0' <= c && c <= '9'
+
+    let read_char c = if is_digit c
         then Some (Char.code c - Char.code '0')
         else None
 
@@ -109,3 +114,101 @@ end = struct
     (* this is pretty bad *)
     let input = Printf.sprintf "../inputs/day-%02d" >> lines
 end
+
+module Parsing : sig
+    type ('a, 'b) parser = 'a list -> ('b * 'a list) list
+
+    (* pure *)
+    val yield : 'b -> ('a, 'b) parser
+    (* fmap *)
+    val map : ('a, 'b) parser -> ('b -> 'c) -> ('a, 'c) parser
+    (* bind *)
+    val and_then
+        : ('a, 'b) parser
+        -> ('b -> ('a, 'c) parser)
+        -> ('a, 'c) parser
+    val (let>)
+        : ('a, 'b) parser
+        -> ('b -> ('a, 'c) parser)
+        -> ('a, 'c) parser
+    (* empty *)
+    val nothing : ('a, 'b) parser
+    (* applicative *)
+    val (<|>) : ('a, 'b) parser -> ('a, 'b) parser -> ('a, 'b) parser
+    (* many *)
+    val repeat : ('a, 'b) parser -> ('a, 'b list) parser
+    (* some *)
+    val non_zero : ('a, 'b) parser -> ('a, 'b list) parser
+
+    (* utility functions *)
+    val eat : ('a, 'b) parser -> ('a, 'c) parser -> ('a, 'c) parser
+    val item : ('a, 'a) parser
+    val sat : ('a -> bool) -> ('a, 'a) parser
+    val char : 'a -> ('a, 'a) parser
+    val sep : ('a, 'b) parser -> ('a, 'c) parser -> ('a, 'b list) parser
+    val finish : ('a, unit) parser
+    val exact : ('a list) -> ('a, 'a list) parser
+    val from_option : ('b option) -> ('a, 'b) parser
+
+    (* string specific stuff *)
+    val read_text : string -> (char, string) parser
+    val read_digit : (char, int) parser
+    val read_number : (char, int) parser
+
+    (* using the parser *)
+    val run : (char, 'b) parser -> string -> 'b list
+    val unique : (char, 'b) parser -> string -> 'b option
+end = struct
+    type ('a, 'b) parser = 'a list -> ('b * 'a list) list
+
+    let yield a s = [(a, s)]
+    let map p f s = List.map (fun (a, s) -> (f a, s)) (p s)
+    let and_then p f s = L.flatmap (p s) (fun (a, s) -> f a s)
+    let (let>) = and_then
+    let nothing _ = []
+    let (<|>) a b s = List.append (a s) (b s)
+    let rec non_zero p =
+        let> x = p in
+        let> xs = repeat p in
+        yield (x :: xs)
+    and repeat p = non_zero p <|> yield []
+
+    let eat a b = and_then a (Fun.const b)
+    let item x = match x with
+        | [] -> []
+        | x :: xs -> [(x, xs)]
+    let sat (f : 'a -> bool) : ('a, 'a) parser =
+        let> c = item in
+        if f c then yield c else nothing
+    let char x = sat ((==) x)
+    let sep a b =
+        let> first = a in
+        let> next = repeat (eat b a) in
+        yield (first :: next)
+    let finish s = match s with
+        | [] -> [((), [])]
+        | _ -> []
+    let rec exact s = match s with
+        | [] -> yield []
+        | x :: xs -> let> b = item in
+            if b == x
+                then map (exact xs) (List.cons b)
+                else nothing
+    let from_option o = match o with
+        | Some x -> yield x
+        | None -> nothing
+
+    let read_text s = map (exact (S.to_list s)) S.from_list
+    let read_digit = and_then item (A.read_char >> from_option)
+    let read_number = and_then
+        (repeat (sat A.is_digit))
+        (S.from_list >> A.read_string >> from_option)
+
+    let run p s = List.map fst (p (S.to_list s))
+    let unique p s = let result = run p s in
+        if List.length result > 1
+            then None
+            else L.hd result
+end
+
+open Parsing
