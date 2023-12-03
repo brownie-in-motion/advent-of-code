@@ -1,6 +1,8 @@
 open Advent
 open Advent.P
 
+(* some ad hoc parsing for today. combinators tomorrow! *)
+
 type ('a, 'b) parse = ('a list * 'b) option
 
 type game_data = {
