@@ -9,3 +9,9 @@
  (name day_02)
  (modules day_02)
  (libraries advent))
+
+(executable
+ (public_name day_03)
+ (name day_03)
+ (modules day_03)
+ (libraries advent))

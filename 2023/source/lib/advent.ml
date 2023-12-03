@@ -20,25 +20,6 @@ end = struct
     let uncurry f (a, b) = f a b
 end
 
-(* list helpers *)
-module L : sig
-    val hd : 'a list -> 'a option
-    val span : ('a -> bool) -> 'a list -> 'a list * 'a list
-    val sum : (int list) -> int
-    val flatmap : 'a list -> ('a -> 'b list) -> 'b list
-end = struct
-    let hd x = match x with
-        | [] -> None
-        | x :: _ -> Some x
-    let rec span f x = match x with
-        | [] -> ([], [])
-        | c :: cs -> if f c
-            then let (l, r) = span f cs in (c :: l, r)
-            else ([], c :: cs)
-    let sum = List.fold_left (+) 0
-    let flatmap l f = List.concat (List.map f l)
-end
-
 (* option helpers *)
 module O : sig
     val map2 : ('a -> 'b -> 'c) -> 'a option -> 'b option -> 'c option
@@ -80,6 +61,33 @@ module T : sig
 end = struct
     let apply3 f (a, b, c) (x, y, z) = (f a x, f b y, f c z)
     let pair a b = (a, b)
+end
+
+(* list helpers *)
+module L : sig
+    val hd : 'a list -> 'a option
+    val product : 'a list -> 'b list -> ('a * 'b) list
+    val range : int -> int -> int list
+    val span : ('a -> bool) -> 'a list -> 'a list * 'a list
+    val sum : (int list) -> int
+    val flatmap : 'a list -> ('a -> 'b list) -> 'b list
+end = struct
+    let hd x = match x with
+        | [] -> None
+        | x :: _ -> Some x
+    let product xs ys =
+        let fst_all l x = List.map (T.pair x) l in
+        List.concat_map (fst_all ys) xs
+    let rec range (x : int) (y : int) = if x >= y
+        then []
+        else x :: range (x + 1) y
+    let rec span f x = match x with
+        | [] -> ([], [])
+        | c :: cs -> if f c
+            then let (l, r) = span f cs in (c :: l, r)
+            else ([], c :: cs)
+    let sum = List.fold_left (+) 0
+    let flatmap l f = List.concat (List.map f l)
 end
 
 (* aoc helpers *)
@@ -149,6 +157,7 @@ module Parsing : sig
     val finish : ('a, unit) parser
     val exact : ('a list) -> ('a, 'a list) parser
     val from_option : ('b option) -> ('a, 'b) parser
+    val next_is_not : ('a -> bool) -> ('a, unit) parser
 
     (* string specific stuff *)
     val read_text : string -> (char, string) parser
@@ -197,6 +206,9 @@ end = struct
     let from_option o = match o with
         | Some x -> yield x
         | None -> nothing
+    let next_is_not f s = match s with
+        | [] -> [((), [])]
+        | x :: xs -> if f x then [] else [((), x :: xs)]
 
     let read_text s = map (exact (S.to_list s)) S.from_list
     let read_digit = and_then item (A.read_char >> from_option)
@@ -210,5 +222,3 @@ end = struct
             then None
             else L.hd result
 end
-
-open Parsing
