@@ -94,6 +94,7 @@ end
 module A : sig
     val lines : string -> string list
     val is_digit : char -> bool
+    val pow : int -> int -> int
     val read_char : char -> int option
     val read_string : string -> int option
     val input : int -> string list
@@ -109,6 +110,12 @@ end = struct
     in lines_inner (open_in file)
 
     let is_digit c = '0' <= c && c <= '9'
+
+    let rec pow x = function
+        | 0 -> 1
+        | n -> if n mod 2 == 0
+            then pow (x * x) (n / 2)
+            else x * pow (x * x) ((n - 1) / 2)
 
     let read_char c = if is_digit c
         then Some (Char.code c - Char.code '0')
@@ -148,6 +155,9 @@ module Parsing : sig
     (* some *)
     val non_zero : ('a, 'b) parser -> ('a, 'b list) parser
 
+    val (&>) : ('a, 'b) parser -> ('a, 'c) parser -> ('a, 'c) parser
+    val (<&) : ('a, 'b) parser -> ('a, 'c) parser -> ('a, 'b) parser
+
     (* utility functions *)
     val eat : ('a, 'b) parser -> ('a, 'c) parser -> ('a, 'c) parser
     val item : ('a, 'a) parser
@@ -158,6 +168,7 @@ module Parsing : sig
     val exact : ('a list) -> ('a, 'a list) parser
     val from_option : ('b option) -> ('a, 'b) parser
     val next_is_not : ('a -> bool) -> ('a, unit) parser
+    val while_greedy : ('b -> bool) -> ('b, 'b list) parser
 
     (* string specific stuff *)
     val read_text : string -> (char, string) parser
@@ -181,6 +192,16 @@ end = struct
         let> xs = repeat p in
         yield (x :: xs)
     and repeat p = non_zero p <|> yield []
+
+    let (<&) a b =
+        let> x = a in
+        let> _ = b in
+        yield x
+
+    let (&>) a b =
+        let> _ = a in
+        let> x = b in
+        yield x
 
     let eat a b = and_then a (Fun.const b)
     let item x = match x with
@@ -209,11 +230,16 @@ end = struct
     let next_is_not f s = match s with
         | [] -> [((), [])]
         | x :: xs -> if f x then [] else [((), x :: xs)]
+    let while_greedy f =
+        let> s = non_zero (sat f) in
+        let> _ = next_is_not f in
+        yield s
+
 
     let read_text s = map (exact (S.to_list s)) S.from_list
     let read_digit = and_then item (A.read_char >> from_option)
     let read_number = and_then
-        (repeat (sat A.is_digit))
+        (non_zero (sat A.is_digit))
         (S.from_list >> A.read_string >> from_option)
 
     let run p s = List.map fst (p (S.to_list s))

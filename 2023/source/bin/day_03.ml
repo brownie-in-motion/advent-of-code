@@ -2,13 +2,6 @@ open Advent
 open Advent.P
 open Advent.Parsing
 
-(* parsing utils *)
-
-let read_greedy (f : 'b -> bool) : ('a, 'b list) parser =
-    let> s = non_zero (sat f) in
-    let> _ = next_is_not f in
-    yield s
-
 let is_symbol x = not (A.is_digit x) && x != '.'
 
 (* parsing *)
@@ -20,13 +13,13 @@ let parse_symbol : (char, row_data) parser =
     map (sat is_symbol) to_symbol
 
 let parse_number : (char, row_data) parser =
-    let> s = read_greedy A.is_digit in
+    let> s = while_greedy A.is_digit in
     let> number = from_option (s |> S.from_list |> A.read_string) in
     yield (Value (List.length s, number))
 
 let parse_gap : (char, row_data) parser =
     let to_gap x = Gap x in
-    map (read_greedy ((==) '.')) (List.length >> to_gap)
+    map (while_greedy ((==) '.')) (List.length >> to_gap)
 
 let parse_row : (char, row_data list) parser =
     let> x = repeat (parse_symbol <|> parse_number <|> parse_gap) in
