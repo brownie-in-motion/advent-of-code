@@ -116,10 +116,6 @@ let part_2 (grid : row_data list list) : int =
     let touched = List.map (touched_ids (value_table data)) gears in
     List.filter_map ratio touched |> L.sum
 
-let display (s : string) (x : int option) : unit = match x with
-    | Some x -> Printf.printf "%s: %d\n" s x
-    | None -> Printf.printf "invalid input\n"
-
 let () =
-    display "part 1" (A.input 3 |> read_grid |> Option.map part_1);
-    display "part 2" (A.input 3 |> read_grid |> Option.map part_2);
+    A.display_int "part 1" (A.input 3 |> read_grid |> Option.map part_1);
+    A.display_int "part 2" (A.input 3 |> read_grid |> Option.map part_2);

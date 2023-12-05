@@ -58,9 +58,5 @@ let part_2 (rows : card list) : int =
 
 let () =
     let run_part f = List.map read_card >> O.sequence >> Option.map f in
-    let display (s : string) (x : int option) : unit = match x with
-        | Some x -> Printf.printf "%s: %d\n" s x
-        | None -> Printf.printf "invalid input\n"
-    in
-    display "part 1" (A.input 4 |> run_part part_1);
-    display "part 2" (A.input 4 |> run_part part_2);
+    A.display_int "part 1" (A.input 4 |> run_part part_1);
+    A.display_int "part 2" (A.input 4 |> run_part part_2);

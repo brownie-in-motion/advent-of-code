@@ -98,6 +98,7 @@ module A : sig
     val read_char : char -> int option
     val read_string : string -> int option
     val input : int -> string list
+    val display_int : string -> int option -> unit
 end = struct
     let lines file = let rec lines_inner channel =
         try
@@ -128,6 +129,10 @@ end = struct
 
     (* this is pretty bad *)
     let input = Printf.sprintf "../inputs/day-%02d" >> lines
+
+    let display_int s x = match x with
+        | Some x -> Printf.printf "%s: %d\n" s x
+        | None -> Printf.printf "invalid input\n"
 end
 
 module Parsing : sig
