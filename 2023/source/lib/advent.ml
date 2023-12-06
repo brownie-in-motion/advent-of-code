@@ -71,6 +71,7 @@ module L : sig
     val span : ('a -> bool) -> 'a list -> 'a list * 'a list
     val sum : (int list) -> int
     val flatmap : 'a list -> ('a -> 'b list) -> 'b list
+    val zip : 'a list -> 'b list -> ('a * 'b) list
 end = struct
     let hd x = match x with
         | [] -> None
@@ -88,6 +89,10 @@ end = struct
             else ([], c :: cs)
     let sum = List.fold_left (+) 0
     let flatmap l f = List.concat (List.map f l)
+    let rec zip a b = match (a, b) with
+        | (x :: xs, y :: ys) -> (x, y) :: zip xs ys
+        | ([], _) -> []
+        | (_, []) -> []
 end
 
 (* aoc helpers *)
