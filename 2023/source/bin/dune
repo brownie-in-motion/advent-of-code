@@ -33,3 +33,9 @@
  (name day_06)
  (modules day_06)
  (libraries advent))
+
+(executable
+ (public_name day_07)
+ (name day_07)
+ (modules day_07)
+ (libraries advent))

@@ -75,10 +75,18 @@ let part_2 ({ id = _; games } : game_data) : int =
     let max = (T.apply3 (fun x y -> if x < y then y else x)) in
     let (r, g, b) = List.fold_left max (0, 0, 0) games in r * g * b
 
-let run_part (f : game_data -> int) (l : string list) : int option =
-    let* games = O.sequence (List.map parse_row l) in
-    Some (L.sum (List.map (f % snd) games))
+module Day_02 : Day = struct
+    let day = 2
+    type problem_t = game_data list
+    type solution_t = int
 
-let () =
-    A.display_int "part 1" (A.input 2 |> run_part part_1);
-    A.display_int "part 2" (A.input 2 |> run_part part_2)
+    let parse = Option.map (List.map snd) % O.sequence % List.map parse_row
+    let display = string_of_int
+
+    let part_1 = L.sum % List.map part_1 >> Option.some
+    let part_2 = L.sum % List.map part_2 >> Option.some
+end
+
+module S = Solution (Day_02)
+
+let () = S.run ()

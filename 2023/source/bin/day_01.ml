@@ -1,4 +1,5 @@
 open Advent
+open Advent.P
 
 let numbers = [
     "one";
@@ -32,9 +33,18 @@ let part (c : string -> (int * int) option) (x : string list) : int =
     let combine = fun (x, y) -> 10 * x + y in
     L.sum (List.map combine (List.filter_map c x))
 
-let part_1 = part calibration_1
-let part_2 = part calibration_2
+module Day_01 : Day = struct
+    let day = 1
+    type problem_t = string list
+    type solution_t = int
 
-let () =
-    Printf.printf "part 1: %d\n" (part_1 (A.input 1));
-    Printf.printf "part 2: %d\n" (part_2 (A.input 1))
+    let parse = Option.some
+    let display = string_of_int
+
+    let part_1 = part calibration_1 >> Option.some
+    let part_2 = part calibration_2 >> Option.some
+end
+
+module S = Solution (Day_01)
+
+let () = S.run ()

@@ -84,9 +84,6 @@ let min_list (l : 'a list) : 'a option =
     in
     List.fold_left (Fun.flip smaller) None l
 
-let part_1 ({ seeds; maps } : problem) : int option =
-    List.map (almanac_function maps) seeds |> min_list
-
 (* part 2 *)
 
 type interval = int * int
@@ -129,13 +126,24 @@ let rec chunked : 'a list -> ('a * 'a) list option = function
     | [] -> Some []
     | _ -> None
 
-let part_2 ({ seeds; maps } : problem) : int option =
-    let* pairs = chunked seeds in
-    let intervals = List.map (fun (x, y) -> (x, x + y)) pairs in
-    let result = List.concat_map (almanac_image maps) intervals in
-    List.map fst result |> min_list
+module Day_05 : Day = struct
+    let day = 5
+    type problem_t = problem
+    type solution_t = int
 
-let run_part = Option.bind (read_problem (split (String.equal "") (A.input 5)))
-let () =
-    A.display_int "part 1" (run_part part_1);
-    A.display_int "part 2" (run_part part_2);
+    let parse = read_problem % split (String.equal "")
+    let display = string_of_int
+
+    let part_1 ({ seeds ; maps } : problem) : int option =
+        List.map (almanac_function maps) seeds |> min_list
+
+    let part_2 ({ seeds; maps } : problem) : int option =
+        let* pairs = chunked seeds in
+        let intervals = List.map (fun (x, y) -> (x, x + y)) pairs in
+        let result = List.concat_map (almanac_image maps) intervals in
+        List.map fst result |> min_list
+end
+
+module S = Solution (Day_05)
+
+let () = S.run ()

@@ -34,6 +34,7 @@ type value_data = {
     length : int;
     value : int
 }
+let get_value { value ; _ } = value
 
 (* iterate over a grid with the positions of objects *)
 let position_map
@@ -96,26 +97,35 @@ let touched_ids (t : int Table.t) ((i, j) : int * int) : IntSet.t =
     let neighbors = L.product (surround i) (surround j) in
     List.filter_map (Fun.flip Table.find_opt t) neighbors |> IntSet.of_list
 
-let part_1 (grid : row_data list list) : int =
-    let data = value_list grid in
-    let combine s = IntSet.union s % touched_ids (value_table data) in
-    let touched = List.fold_left combine IntSet.empty (symbol_list grid) in
-    let filter i { value ; _ } = Option.map
-        (Fun.const value)
-        (IntSet.find_opt i touched)
-    in List.filter_map Fun.id (List.mapi filter data) |> L.sum
+module Day_03 : Day = struct
+    let day = 3
+    type problem_t = row_data list list
+    type solution_t = int
 
-let part_2 (grid : row_data list list) : int =
-    let data = value_list grid in
-    let values = Array.of_list (List.map (fun { value ; _ } -> value) data) in
-    let gears = gear_list grid in
-    let ratio s = match IntSet.to_list s with
-        | [a ; b] -> Some (Array.get values a * Array.get values b)
-        | _ -> None
-    in
-    let touched = List.map (touched_ids (value_table data)) gears in
-    List.filter_map ratio touched |> L.sum
+    let parse = read_grid
+    let display = string_of_int
 
-let () =
-    A.display_int "part 1" (A.input 3 |> read_grid |> Option.map part_1);
-    A.display_int "part 2" (A.input 3 |> read_grid |> Option.map part_2);
+    let part_1 = Option.some % function grid ->
+        let data = value_list grid in
+        let combine s = IntSet.union s % touched_ids (value_table data) in
+        let touched = List.fold_left combine IntSet.empty (symbol_list grid) in
+        let filter i { value ; _ } = Option.map
+            (Fun.const value)
+            (IntSet.find_opt i touched)
+        in List.filter_map Fun.id (List.mapi filter data) |> L.sum
+
+    let part_2 = Option.some % function grid ->
+        let data = value_list grid in
+        let values = Array.of_list (List.map get_value data) in
+        let gears = gear_list grid in
+        let ratio s = match IntSet.to_list s with
+            | [a ; b] -> Some (Array.get values a * Array.get values b)
+            | _ -> None
+        in
+        let touched = List.map (touched_ids (value_table data)) gears in
+        List.filter_map ratio touched |> L.sum
+end
+
+module S = Solution (Day_03)
+
+let () = S.run ()

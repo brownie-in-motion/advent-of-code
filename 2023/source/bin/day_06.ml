@@ -24,7 +24,7 @@ let parse_2 : (char, int) parser = and_then
     (repeat (non_zero (sat ((==) ' ')) &> non_zero (sat A.is_digit)))
     (List.concat >> S.from_list >> A.read_string >> from_option)
 
-let parse (p : (char, 'a) parser) : string list -> ('a * 'a) option =
+let parse_in (p : (char, 'a) parser) : string list -> ('a * 'a) option =
     let read_row s = unique (read_text s &> p <& finish) in
     function
         | [t; d] ->
@@ -33,13 +33,22 @@ let parse (p : (char, 'a) parser) : string list -> ('a * 'a) option =
             Some (times, distances)
         | _ -> None
 
-let part_1 (p : string list) =
-    let* t, d = parse parse_1 p in
-    let* widths = List.map (F.uncurry margin) (L.zip t d) |> O.sequence in
-    Some (List.fold_left (fun x y -> x * y) 1 widths)
+module Day_06 : Day = struct
+    let day = 6
+    type problem_t = string list
+    type solution_t = int
 
-let part_2 (p : string list) = Option.bind (parse parse_2 p) (F.uncurry margin)
+    let parse = Option.some
+    let display = string_of_int
 
-let () =
-    A.display_int "part 1" (part_1 (A.input 6));
-    A.display_int "part 2" (part_2 (A.input 6));
+    let part_1 p =
+        let* t, d = parse_in parse_1 p in
+        let* widths = List.map (F.uncurry margin) (L.zip t d) |> O.sequence in
+        Some (List.fold_left (fun x y -> x * y) 1 widths)
+
+    let part_2 p = Option.bind (parse_in parse_2 p) (F.uncurry margin)
+end
+
+module S = Solution (Day_06)
+
+let () = S.run ()

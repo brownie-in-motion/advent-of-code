@@ -2,7 +2,7 @@ open Advent
 open Advent.P
 open Advent.Parsing
 
-module IntMap = Map.Make (Int)
+module IMap = Map.Make (Int)
 
 type card = {
     _id : int;
@@ -38,25 +38,33 @@ let all_scores (f : int -> int) (c : card list) : int list =
     let score { numbers ; winning ; _ } = List.length (matches numbers winning)
     in List.map (f % score) c
 
-let part_1 : card list -> int =
-    let score x = if x == 0 then 0 else A.pow 2 (x - 1) in
-    all_scores score >> L.sum
+module Day_04 : Day = struct
+    let day = 4
+    type problem_t = card list
+    type solution_t = int
 
-let part_2 (rows : card list) : int =
-    let scores = all_scores Fun.id rows in
-    let update (state : int IntMap.t) ((card, score) : int * int) : int IntMap.t =
-        let current = Option.value (IntMap.find_opt card state) ~default:0 in
-        let new_cards = L.range (card + 1) (card + score + 1) in
-        let increase c s k =
-            let amount = Option.value (IntMap.find_opt k s) ~default:0 in
-            IntMap.add k (amount + c) s
-        in List.fold_left (increase current) state new_cards
-    in
-    let start = IntMap.of_list (List.mapi (fun i _ -> (i, 1)) scores) in
-    let state = List.fold_left update start (List.mapi T.pair scores) in
-    List.map snd (IntMap.to_list state) |> L.sum
+    let parse = List.map read_card >> O.sequence
+    let display = string_of_int
 
-let () =
-    let run_part f = List.map read_card >> O.sequence >> Option.map f in
-    A.display_int "part 1" (A.input 4 |> run_part part_1);
-    A.display_int "part 2" (A.input 4 |> run_part part_2);
+    let part_1 =
+        let score x = if x == 0 then 0 else A.pow 2 (x - 1) in
+        all_scores score >> L.sum >> Option.some
+
+    let part_2 = Option.some % function rows ->
+        let scores = all_scores Fun.id rows in
+        let update state (card, score) =
+            let current = Option.value (IMap.find_opt card state) ~default:0 in
+            let new_cards = L.range (card + 1) (card + score + 1) in
+            let increase c s k =
+                let amount = Option.value (IMap.find_opt k s) ~default:0 in
+                IMap.add k (amount + c) s
+            in List.fold_left (increase current) state new_cards
+        in
+        let start = IMap.of_list (List.mapi (fun i _ -> (i, 1)) scores) in
+        let state = List.fold_left update start (List.mapi T.pair scores) in
+        List.map snd (IMap.to_list state) |> L.sum
+end
+
+module S = Solution (Day_04)
+
+let () = S.run ()

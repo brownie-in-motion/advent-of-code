@@ -258,3 +258,36 @@ end = struct
             then None
             else L.hd result
 end
+
+module type Day = sig
+    val day : int
+    type problem_t
+    type solution_t
+    val parse : string list -> problem_t option
+    val display : solution_t -> string
+    val part_1 : problem_t -> solution_t option
+    val part_2 : problem_t -> solution_t option
+end
+
+module Solution (D : Day) : sig
+    val run_1 : unit -> unit
+    val run_2 : unit -> unit
+    val run : unit -> unit
+end = struct
+    let run d part =
+        let data = A.input D.day |> D.parse in
+        let wrapped = Option.to_result ~none:"invalid input" data in
+        let solution = Result.bind
+            wrapped
+            (Option.to_result ~none:"no solution" % part)
+        in
+        let message = match solution with
+            | Ok x -> D.display x
+            | Error e -> e
+        in
+        Printf.printf "part %d: %s\n" d message
+
+    let run_1 () = run 1 D.part_1
+    let run_2 () = run 2 D.part_2
+    let run () = run_1 (); run_2 ()
+end
