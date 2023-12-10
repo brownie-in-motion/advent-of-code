@@ -45,6 +45,6 @@ module Day_01 : Day = struct
     let part_2 = part calibration_2 >> Option.some
 end
 
-module S = Solution (Day_01)
+module Solve = Solution (Day_01)
 
-let () = S.run ()
+let () = Solve.run ()

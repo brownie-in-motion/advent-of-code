@@ -91,6 +91,6 @@ module Day_07 : Day = struct
     let part_2 = run part_2_value >> Option.some
 end
 
-module S = Solution (Day_07)
+module Solve = Solution (Day_07)
 
-let () = S.run ()
+let () = Solve.run ()

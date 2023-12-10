@@ -49,6 +49,6 @@ module Day_06 : Day = struct
     let part_2 p = Option.bind (parse_in parse_2 p) (F.uncurry margin)
 end
 
-module S = Solution (Day_06)
+module Solve = Solution (Day_06)
 
-let () = S.run ()
+let () = Solve.run ()

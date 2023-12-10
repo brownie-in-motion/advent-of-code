@@ -57,9 +57,11 @@ module T : sig
         -> ('a * 'a * 'a)
         -> ('b * 'b * 'b)
         -> ('c * 'c * 'c)
+    val bimap : ('a -> 'b) -> ('c -> 'd) -> 'a * 'c -> 'b * 'd
     val pair : 'a -> 'b -> ('a * 'b)
 end = struct
     let apply3 f (a, b, c) (x, y, z) = (f a x, f b y, f c z)
+    let bimap f g (a, b) = (f a, g b)
     let pair a b = (a, b)
 end
 
@@ -72,6 +74,8 @@ module L : sig
     val sum : (int list) -> int
     val flatmap : 'a list -> ('a -> 'b list) -> 'b list
     val zip : 'a list -> 'b list -> ('a * 'b) list
+    val break : ('a -> bool) -> 'a list -> 'a list * 'a list
+    val split : ('a -> bool) -> 'a list -> 'a list list
 end = struct
     let hd x = match x with
         | [] -> None
@@ -93,6 +97,15 @@ end = struct
         | (x :: xs, y :: ys) -> (x, y) :: zip xs ys
         | ([], _) -> []
         | (_, []) -> []
+    let rec break f = function
+        | x :: xs -> if f x
+            then ([], x :: xs)
+            else let (l, r) = break f xs in (x :: l, r)
+        | [] -> ([], [])
+    let rec split f l =
+        match break f l with
+            | (left, []) -> [left]
+            | (left, right) -> left :: split f (List.tl right)
 end
 
 (* aoc helpers *)
@@ -179,6 +192,8 @@ module Parsing : sig
     val from_option : ('b option) -> ('a, 'b) parser
     val next_is_not : ('a -> bool) -> ('a, unit) parser
     val while_greedy : ('b -> bool) -> ('b, 'b list) parser
+    val sequence : ('a, 'b) parser list -> ('a, 'b list) parser
+    val count : int -> ('a, 'b) parser -> ('a, 'b list) parser
 
     (* string specific stuff *)
     val read_text : string -> (char, string) parser
@@ -244,7 +259,13 @@ end = struct
         let> s = non_zero (sat f) in
         let> _ = next_is_not f in
         yield s
-
+    let rec sequence = function
+        | [] -> yield []
+        | p :: ps ->
+            let> x = p in
+            let> xs = sequence ps in
+            yield (x :: xs)
+    let count n p = List.map (Fun.const p) (L.range 0 n) |> sequence
 
     let read_text s = map (exact (S.to_list s)) S.from_list
     let read_digit = and_then item (A.read_char >> from_option)
@@ -273,6 +294,8 @@ module Solution (D : Day) : sig
     val run_1 : unit -> unit
     val run_2 : unit -> unit
     val run : unit -> unit
+
+    val test : (D.problem_t -> 'a option) -> 'a option
 end = struct
     let run d part =
         let data = A.input D.day |> D.parse in
@@ -290,4 +313,6 @@ end = struct
     let run_1 () = run 1 D.part_1
     let run_2 () = run 2 D.part_2
     let run () = run_1 (); run_2 ()
+
+    let test f = A.input D.day |> D.parse |> Fun.flip Option.bind f
 end

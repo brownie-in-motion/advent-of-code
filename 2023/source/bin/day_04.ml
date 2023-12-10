@@ -65,6 +65,6 @@ module Day_04 : Day = struct
         List.map snd (IMap.to_list state) |> L.sum
 end
 
-module S = Solution (Day_04)
+module Solve = Solution (Day_04)
 
-let () = S.run ()
+let () = Solve.run ()

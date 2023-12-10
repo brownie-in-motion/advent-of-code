@@ -2,17 +2,6 @@ open Advent
 open Advent.P
 open Advent.Parsing
 
-let rec break (f : 'a -> bool) : 'a list -> ('a list * 'a list) = function
-    | x :: xs -> if f x
-        then ([], x :: xs)
-        else let (l, r) = break f xs in (x :: l, r)
-    | [] -> ([], [])
-
-let rec split (f : 'a -> bool) (l : 'a list) : 'a list list =
-    match break f l with
-        | (left, []) -> [left]
-        | (left, right) -> left :: split f (List.tl right)
-
 (* assumption: the maps are given to us in order *)
 (* that is, no need to look at the 'a-to-b' headers *)
 
@@ -131,7 +120,7 @@ module Day_05 : Day = struct
     type problem_t = problem
     type solution_t = int
 
-    let parse = read_problem % split (String.equal "")
+    let parse = read_problem % L.split (String.equal "")
     let display = string_of_int
 
     let part_1 ({ seeds ; maps } : problem) : int option =
@@ -144,6 +133,6 @@ module Day_05 : Day = struct
         List.map fst result |> min_list
 end
 
-module S = Solution (Day_05)
+module Solve = Solution (Day_05)
 
-let () = S.run ()
+let () = Solve.run ()

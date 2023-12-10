@@ -87,6 +87,6 @@ module Day_02 : Day = struct
     let part_2 = L.sum % List.map part_2 >> Option.some
 end
 
-module S = Solution (Day_02)
+module Solve = Solution (Day_02)
 
-let () = S.run ()
+let () = Solve.run ()

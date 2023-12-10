@@ -126,6 +126,6 @@ module Day_03 : Day = struct
         List.filter_map ratio touched |> L.sum
 end
 
-module S = Solution (Day_03)
+module Solve = Solution (Day_03)
 
-let () = S.run ()
+let () = Solve.run ()
