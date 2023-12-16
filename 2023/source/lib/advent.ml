@@ -68,6 +68,8 @@ end
 (* list helpers *)
 module L : sig
     val hd : 'a list -> 'a option
+    val tl : 'a list -> 'a list option
+    val last : 'a list -> 'a option
     val product : 'a list -> 'b list -> ('a * 'b) list
     val range : int -> int -> int list
     val span : ('a -> bool) -> 'a list -> 'a list * 'a list
@@ -76,10 +78,19 @@ module L : sig
     val zip : 'a list -> 'b list -> ('a * 'b) list
     val break : ('a -> bool) -> 'a list -> 'a list * 'a list
     val split : ('a -> bool) -> 'a list -> 'a list list
+    val enum2 : ('a list list) -> ((int * int) * 'a) list
+    val unzip : ('a * 'b) list -> 'a list * 'b list
 end = struct
     let hd x = match x with
         | [] -> None
         | x :: _ -> Some x
+    let tl x = match x with
+        | [] -> None
+        | _ :: xs -> Some xs
+    let rec last x = match x with
+        | [x] -> Some x
+        | _ :: xs -> last xs
+        | [] -> None
     let product xs ys =
         let fst_all l x = List.map (T.pair x) l in
         List.concat_map (fst_all ys) xs
@@ -106,6 +117,10 @@ end = struct
         match break f l with
             | (left, []) -> [left]
             | (left, right) -> left :: split f (List.tl right)
+    let enum2 l =
+        let f i l = List.mapi (fun j c -> (i, j), c) l in
+        List.mapi f l |> List.concat
+    let unzip l = (List.map fst l, List.map snd l)
 end
 
 (* aoc helpers *)
@@ -140,10 +155,14 @@ end = struct
         then Some (Char.code c - Char.code '0')
         else None
 
-    let read_string s = List.fold_left
+    let read_string_inner s = List.fold_left
         (O.map2 (fun x y -> 10 * x + y))
         (Some 0)
-        (List.map read_char (S.to_list s))
+        (List.map read_char s)
+
+    let read_string s = match S.to_list s with
+        | '-' :: s -> Option.map (fun x -> -1 * x) (read_string_inner s)
+        | s -> read_string_inner s
 
     (* this is pretty bad *)
     let input = Printf.sprintf "../inputs/day-%02d" >> lines
@@ -269,9 +288,10 @@ end = struct
 
     let read_text s = map (exact (S.to_list s)) S.from_list
     let read_digit = and_then item (A.read_char >> from_option)
-    let read_number = and_then
-        (non_zero (sat A.is_digit))
-        (S.from_list >> A.read_string >> from_option)
+    let read_number = let read x = A.is_digit x || x == '-' in
+        and_then
+            (non_zero (sat read))
+            (S.from_list >> A.read_string >> from_option)
 
     let run p s = List.map fst (p (S.to_list s))
     let unique p s = let result = run p s in

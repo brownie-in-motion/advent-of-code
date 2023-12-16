@@ -45,3 +45,45 @@
  (name day_08)
  (modules day_08)
  (libraries advent))
+
+(executable
+ (public_name day_09)
+ (name day_09)
+ (modules day_09)
+ (libraries advent))
+
+(executable
+ (public_name day_10)
+ (name day_10)
+ (modules day_10)
+ (libraries advent))
+
+(executable
+ (public_name day_11)
+ (name day_11)
+ (modules day_11)
+ (libraries advent))
+
+(executable
+ (public_name day_12)
+ (name day_12)
+ (modules day_12)
+ (libraries advent))
+
+(executable
+ (public_name day_13)
+ (name day_13)
+ (modules day_13)
+ (libraries advent))
+
+(executable
+ (public_name day_14)
+ (name day_14)
+ (modules day_14)
+ (libraries advent))
+
+(executable
+ (public_name day_15)
+ (name day_15)
+ (modules day_15)
+ (libraries advent))
