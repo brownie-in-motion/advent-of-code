@@ -25,10 +25,10 @@ let parse_card : (char, card) parser =
 let read_card : string -> card option = unique parse_card
 
 let matches (a : 'a list) (b : 'a list) : 'a list =
-    let sort a b = if a == b then 0 else if a < b then -1 else 1 in
+    let sort a b = if a = b then 0 else if a < b then -1 else 1 in
     let rec matches_inner = function
         | (x :: xs), (y :: ys) ->
-            if x == y then x :: matches_inner (xs, ys)
+            if x = y then x :: matches_inner (xs, ys)
             else if x < y then matches_inner (xs, (y :: ys))
             else matches_inner ((x :: xs), ys)
         | _ -> []
@@ -47,7 +47,7 @@ module Day_04 : Day = struct
     let display = string_of_int
 
     let part_1 =
-        let score x = if x == 0 then 0 else A.pow 2 (x - 1) in
+        let score x = if x = 0 then 0 else A.pow 2 (x - 1) in
         all_scores score >> L.sum >> Option.some
 
     let part_2 = Option.some % function rows ->

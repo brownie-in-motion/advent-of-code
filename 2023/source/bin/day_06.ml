@@ -17,11 +17,11 @@ let margin t d =
     Some (y - x + 1)
 
 (* part 1 input rows are lists of numbers *)
-let parse_1 = repeat (non_zero (sat ((==) ' ')) &> read_number)
+let parse_1 = repeat (non_zero (sat ((=) ' ')) &> read_number)
 
 (* part 2 input rows are numbrs, ignoring spaces *)
 let parse_2 : (char, int) parser = and_then
-    (repeat (non_zero (sat ((==) ' ')) &> non_zero (sat A.is_digit)))
+    (repeat (non_zero (sat ((=) ' ')) &> non_zero (sat A.is_digit)))
     (List.concat >> S.from_list >> A.read_string >> from_option)
 
 let parse_in (p : (char, 'a) parser) : string list -> ('a * 'a) option =

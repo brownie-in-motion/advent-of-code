@@ -12,7 +12,7 @@ type game_data = {
 
 let rec exact (p : 'a list) (s : 'a list) : ('a, unit) parse =
     match (p, s) with
-        | (x :: xs, y :: ys) -> if x == y
+        | (x :: xs, y :: ys) -> if x = y
             then exact xs ys
             else None
         | [], y -> Some (y, ())
@@ -56,8 +56,8 @@ let rec parse_games (s : char list) : (char, (int * int * int) list) parse =
         | ([], _) -> Some ([], [])
         | (l, r) ->
             let* _, b = parse_colors l in
-            let _, r = L.span (fun x -> x == ';') r in
-            let _, r = L.span (fun x -> x == ' ') r in
+            let _, r = L.span (fun x -> x = ';') r in
+            let _, r = L.span (fun x -> x = ' ') r in
             let* r, bs = parse_games r in
             Some (r, b :: bs)
 

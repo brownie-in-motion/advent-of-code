@@ -147,7 +147,7 @@ end = struct
 
     let rec pow x = function
         | 0 -> 1
-        | n -> if n mod 2 == 0
+        | n -> if n mod 2 = 0
             then pow (x * x) (n / 2)
             else x * pow (x * x) ((n - 1) / 2)
 
@@ -254,7 +254,7 @@ end = struct
     let sat (f : 'a -> bool) : ('a, 'a) parser =
         let> c = item in
         if f c then yield c else nothing
-    let char x = sat ((==) x)
+    let char x = sat ((=) x)
     let sep a b =
         let> first = a in
         let> next = repeat (eat b a) in
@@ -265,7 +265,7 @@ end = struct
     let rec exact s = match s with
         | [] -> yield []
         | x :: xs -> let> b = item in
-            if b == x
+            if b = x
                 then map (exact xs) (List.cons b)
                 else nothing
     let from_option o = match o with
@@ -288,7 +288,7 @@ end = struct
 
     let read_text s = map (exact (S.to_list s)) S.from_list
     let read_digit = and_then item (A.read_char >> from_option)
-    let read_number = let read x = A.is_digit x || x == '-' in
+    let read_number = let read x = A.is_digit x || x = '-' in
         and_then
             (non_zero (sat read))
             (S.from_list >> A.read_string >> from_option)

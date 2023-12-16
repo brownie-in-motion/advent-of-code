@@ -19,7 +19,7 @@ let parse_number : (char, row_data) parser =
 
 let parse_gap : (char, row_data) parser =
     let to_gap x = Gap x in
-    map (while_greedy ((==) '.')) (List.length >> to_gap)
+    map (while_greedy ((=) '.')) (List.length >> to_gap)
 
 let parse_row : (char, row_data list) parser =
     let> x = repeat (parse_symbol <|> parse_number <|> parse_gap) in
@@ -78,7 +78,7 @@ let gear_list : row_data list list -> (int * int) list =
 
 module Position = struct
     type t = (int * int)
-    let compare (a, b) (x, y) = if a == x then b - y else a - x
+    let compare (a, b) (x, y) = if a = x then b - y else a - x
 end
 module Table = Map.Make (Position)
 module IntSet = Set.Make (Int)

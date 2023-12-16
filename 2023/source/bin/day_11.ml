@@ -12,7 +12,7 @@ module Day_11 = struct
 
     let parse = List.map S.to_list
         >> L.enum2
-        >> List.filter (fun (_, x) -> x == '#')
+        >> List.filter (fun (_, x) -> x = '#')
         >> List.map fst
         >> Option.some
 

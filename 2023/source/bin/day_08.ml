@@ -120,7 +120,7 @@ module Day_08 = struct
         in
         let* count_1, remaining, last_1 = inner ds n start in
         let* count_2, _, last_2 = inner remaining n last_1 in
-        if count_1 == count_2 && last_1 == last_2
+        if count_1 = count_2 && last_1 = last_2
             then Some count_1
             else None
 
@@ -136,7 +136,7 @@ module Day_08 = struct
             |> List.map (cycle_length spin n)
             |> O.sequence
         in
-        let check = List.map (Fun.flip (mod) (List.length d) >> (==) 0) data in
+        let check = List.map (Fun.flip (mod) (List.length d) >> (=) 0) data in
         let* _ = if List.fold_left (&&) true check then Some () else None in
         let lcm a b = a * b / gcd a b in
         Some (List.fold_left lcm 1 data)

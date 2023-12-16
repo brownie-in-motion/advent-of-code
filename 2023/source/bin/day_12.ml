@@ -33,7 +33,7 @@ type instance = status array
 let new_state (i : instance) : dp_state =
     let length = Array.length i in
     let rec inner (x : int) (d : bool) : int list =
-        if x == length
+        if x = length
             then []
             else if i.(x) = T
                 then 0 :: inner (x + 1) true
@@ -87,7 +87,7 @@ let compute_upto (a : instance) (s : dp_state) : dp_state =
     let length = Array.length a in
     let my_exact = List.hd s.exact in
     let rec inner (prev : int) (x : int) : int list =
-        if x == length
+        if x = length
             then []
             else
                 if x + 1 < length && a.(x + 1) = T && my_exact.(x) = 0

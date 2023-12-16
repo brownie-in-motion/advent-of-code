@@ -31,12 +31,12 @@ let rec compare_hand f (l : int list) (r : int list) : int =
         | _, [] -> 1
         | x :: xs, y :: ys ->
             let c = f x y in
-            if c == 0
+            if c = 0
                 then compare_hand f xs ys
                 else f x y
 
 let get_equal (v : int) (l : int list) : int * int list =
-    let left, right = List.partition ((==) v) l in
+    let left, right = List.partition ((=) v) l in
     (List.length left, right)
 
 let rec chunked (l : int list) : (int * int) list =
@@ -70,7 +70,7 @@ let part_2_value (l : int list) : int list =
         | x :: xs -> (x + jokers) :: xs
         | [] -> [jokers] in
     let rank = hand_rank boosted in
-    rank :: (List.map (fun x -> if x == 11 then 0 else x) l)
+    rank :: (List.map (fun x -> if x = 11 then 0 else x) l)
 
 let run f input =
     let ranked = List.map (fun (h, b) -> (f h, b)) input in

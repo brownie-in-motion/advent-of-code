@@ -14,7 +14,7 @@ module Day_09 = struct
 
     let derivatives (x : int list) : int list option =
         let rec inner x =
-            if List.fold_left (&&) true (List.map ((==) 0) x)
+            if List.fold_left (&&) true (List.map ((=) 0) x)
                 then Some []
                 else
                     let* tail = L.tl x in
