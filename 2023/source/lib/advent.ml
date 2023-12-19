@@ -80,6 +80,7 @@ module L : sig
     val split : ('a -> bool) -> 'a list -> 'a list list
     val enum2 : ('a list list) -> ((int * int) * 'a) list
     val unzip : ('a * 'b) list -> 'a list * 'b list
+    val transpose : 'a list list -> 'a list list
 end = struct
     let hd x = match x with
         | [] -> None
@@ -121,6 +122,12 @@ end = struct
         let f i l = List.mapi (fun j c -> (i, j), c) l in
         List.mapi f l |> List.concat
     let unzip l = (List.map fst l, List.map snd l)
+    let rec transpose i =
+        let row = List.filter_map hd i in
+        let remainder = List.filter_map tl i in
+            match row with
+            | [] -> []
+            | _ -> row :: transpose remainder
 end
 
 (* aoc helpers *)
